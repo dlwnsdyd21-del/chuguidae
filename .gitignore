@@ -1,0 +1,4 @@
+.claude/
+*.xlsx
+*.json.bak
+축의대백업_*.json

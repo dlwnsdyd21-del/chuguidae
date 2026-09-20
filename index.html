@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>축의대</title>
+  <meta name="theme-color" content="#8a5a44">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="축의대">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 행사 목록 -->
+<section id="screen-home" class="screen">
+  <header class="bar"><h1>축의대</h1></header>
+  <main class="wrap">
+    <div id="env-warn" class="banner warn" hidden></div>
+    <button id="btn-install" class="btn primary big" hidden>이 기기에 앱으로 설치</button>
+    <p id="offline-status" class="status" hidden></p>
+    <div id="event-list" class="cards"></div>
+    <button id="btn-new-event" class="btn primary big">+ 새 예식 만들기</button>
+    <label class="btn ghost big file-btn">백업 파일 불러오기
+      <input id="file-import" type="file" accept=".json,application/json" hidden>
+    </label>
+  </main>
+</section>
+
+<!-- 설정 -->
+<section id="screen-setup" class="screen" hidden>
+  <header class="bar">
+    <button class="back" data-back>‹</button><h1 id="setup-title">새 예식</h1>
+  </header>
+  <main class="wrap">
+    <form id="form-setup" autocomplete="off">
+      <div class="field">
+        <span class="label">어느 쪽 축의대인가요?</span>
+        <div class="seg" id="seg-side">
+          <button type="button" data-v="신랑측" class="on">신랑측</button>
+          <button type="button" data-v="신부측">신부측</button>
+        </div>
+      </div>
+      <div class="row2">
+        <label class="field"><span class="label">신랑 이름</span><input id="su-groom" required></label>
+        <label class="field"><span class="label">신부 이름</span><input id="su-bride" required></label>
+      </div>
+      <label class="field"><span class="label">예식 날짜</span><input id="su-date" type="date" required></label>
+      <label class="field"><span class="label">장소 <em>선택</em></span><input id="su-venue"></label>
+      <label class="field"><span class="label">접수 담당자 <em>선택</em></span><input id="su-clerk" placeholder="예: 김철수, 이영희"></label>
+      <div class="field">
+        <span class="label">"누구 손님" 선택지</span>
+        <div id="su-hosts" class="chips"></div>
+        <div class="inline">
+          <input id="su-host-new" placeholder="추가할 항목 (예: 형, 누나)">
+          <button type="button" id="su-host-add" class="btn">추가</button>
+        </div>
+      </div>
+      <button class="btn primary big" type="submit">저장하고 시작</button>
+    </form>
+  </main>
+</section>
+
+<!-- 접수 / 목록 / 더보기 -->
+<section id="screen-main" class="screen" hidden>
+  <header class="bar">
+    <button class="back" data-back>‹</button>
+    <div class="bar-title"><h1 id="main-title"></h1><small id="main-sub"></small></div>
+    <span id="main-count" class="count"></span>
+  </header>
+
+  <main class="wrap">
+    <!-- 접수 -->
+    <div id="tab-input" class="tab">
+      <div id="closed-banner" class="banner" hidden>접수가 마감되었습니다. 더보기에서 다시 열 수 있습니다.</div>
+      <div id="last-saved" class="last" hidden></div>
+
+      <form id="form-entry" autocomplete="off">
+        <div class="field">
+          <div class="label-row">
+            <span class="label">이름</span>
+            <label class="check"><input type="checkbox" id="en-unknown"> 이름 확인 어려움</label>
+          </div>
+          <input id="en-name" enterkeyhint="next" placeholder="봉투에 적힌 이름">
+          <div id="dup-hint" class="hint" hidden></div>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <span class="label">금액</span>
+            <div class="seg small" id="seg-unit">
+              <button type="button" data-v="man" class="on">만원</button>
+              <button type="button" data-v="won">원</button>
+            </div>
+          </div>
+          <div class="amount-box">
+            <input id="en-amount" inputmode="numeric" enterkeyhint="next" placeholder="0">
+            <span id="en-unit-label">만원</span>
+          </div>
+          <div id="amount-read" class="amount-read">&nbsp;</div>
+          <div id="quick" class="quick"></div>
+        </div>
+
+        <div class="field">
+          <span class="label">누구 손님 <em>선택</em></span>
+          <div id="en-hosts" class="chips select"></div>
+        </div>
+
+        <div class="row2">
+          <label class="field grow"><span class="label" id="memo-label">메모 <em>선택</em></span>
+            <input id="en-memo" enterkeyhint="done" placeholder="소속, 관계 등"></label>
+          <label class="field narrow"><span class="label">식권 <em>선택</em></span>
+            <input id="en-tickets" inputmode="numeric" placeholder="0"></label>
+        </div>
+
+        <button class="btn primary big" type="submit" id="btn-save">저장</button>
+      </form>
+    </div>
+
+    <!-- 목록 -->
+    <div id="tab-list" class="tab" hidden>
+      <input id="ls-search" type="search" placeholder="이름·메모·번호 검색">
+      <div id="ls-filters" class="chips select scroll"></div>
+      <div id="ls-items" class="list"></div>
+    </div>
+
+    <!-- 더보기 -->
+    <div id="tab-more" class="tab" hidden>
+      <button id="btn-excel" class="btn primary big">엑셀로 저장</button>
+      <button id="btn-backup" class="btn big">백업 파일 저장</button>
+      <hr>
+      <button id="btn-close" class="btn big">접수 마감</button>
+      <button id="btn-edit-event" class="btn ghost big">예식 정보 수정</button>
+      <button id="btn-logs" class="btn ghost big">변경 이력 보기</button>
+      <p class="note">모든 내용은 입력 즉시 이 기기에 자동 저장됩니다. 인터넷 연결이 필요 없습니다.<br><span id="app-version"></span></p>
+    </div>
+  </main>
+
+  <nav class="tabs">
+    <button data-tab="input" class="on">접수</button>
+    <button data-tab="list">목록</button>
+    <button data-tab="more">더보기</button>
+  </nav>
+</section>
+
+<!-- 수정 창 -->
+<dialog id="dlg-edit">
+  <form id="form-edit" method="dialog" autocomplete="off">
+    <h2 id="ed-title"></h2>
+    <label class="check"><input type="checkbox" id="ed-unknown"> 이름 확인 어려움</label>
+    <label class="field"><span class="label">이름</span><input id="ed-name"></label>
+    <label class="field"><span class="label">금액 (원)</span><input id="ed-amount" inputmode="numeric"></label>
+    <div id="ed-amount-read" class="amount-read">&nbsp;</div>
+    <label class="field"><span class="label">누구 손님</span><select id="ed-host"></select></label>
+    <label class="field"><span class="label">메모</span><input id="ed-memo"></label>
+    <label class="field"><span class="label">식권</span><input id="ed-tickets" inputmode="numeric"></label>
+    <div class="dlg-actions">
+      <button type="button" id="ed-cancel-entry" class="btn danger">접수 취소</button>
+      <span class="spacer"></span>
+      <button type="button" id="ed-close" class="btn ghost">닫기</button>
+      <button type="submit" class="btn primary">수정 저장</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-logs">
+  <h2>변경 이력</h2>
+  <div id="logs-body" class="logs"></div>
+  <div class="dlg-actions"><span class="spacer"></span><button class="btn" id="logs-close">닫기</button></div>
+</dialog>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/vendor/xlsx.full.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/excel.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
