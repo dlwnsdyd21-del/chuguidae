@@ -1,10 +1,10 @@
 // 앱 파일을 기기에 저장해 두고 인터넷 없이 열리게 한다. 파일을 고치면 VERSION 숫자를 올릴 것.
 // 같은 주소(예: 아이디.github.io)의 다른 앱과 저장 공간을 나눠 쓰므로 이름에 PREFIX를 붙인다.
 const PREFIX = 'chuguidae-';
-const VERSION = PREFIX + 'v3';
+const VERSION = PREFIX + 'v4';
 const FILES = [
   './', 'index.html', 'css/style.css',
-  'js/vendor/xlsx.full.min.js', 'js/db.js', 'js/excel.js', 'js/app.js',
+  'js/vendor/xlsx.full.min.js', 'js/native.js', 'js/db.js', 'js/excel.js', 'js/app.js',
   'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
 ];
 

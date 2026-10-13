@@ -2,3 +2,15 @@
 *.xlsx
 *.json.bak
 축의대백업_*.json
+
+# 배포 서명 키 (절대 올리지 말 것)
+keystore.properties
+*.keystore
+*.jks
+keystore/
+
+# 빌드 산출물
+node_modules/
+*.apk
+*.aab
+*.ipa

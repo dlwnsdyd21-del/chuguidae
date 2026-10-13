@@ -1,0 +1,118 @@
+# 안드로이드(APK·AAB)와 iOS(서명 없는 IPA) 설치 파일을 자동으로 만든다.
+# - main 에 올릴 때마다: Actions 탭 → 해당 실행 → Artifacts 에서 내려받기
+# - v1.0.0 같은 태그를 올리면: Releases 페이지에 파일이 첨부된다
+name: 앱 빌드 (Android / iOS)
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    name: Android APK / AAB
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+
+      - run: npm ci
+      - run: npx cap sync android
+
+      - name: 서명 키 준비 (secret 이 등록된 경우)
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.jks
+          {
+            echo "storeFile=release.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > android/keystore.properties
+
+      - name: 버전 정하기
+        id: ver
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then NAME="${GITHUB_REF#refs/tags/v}"; else NAME="1.0.0-build$GITHUB_RUN_NUMBER"; fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Gradle 빌드
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease bundleRelease --no-daemon \
+            -PversionCode=${{ steps.ver.outputs.code }} -PversionName=${{ steps.ver.outputs.name }}
+
+      - name: 산출물 정리
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release*.apk "out/chuguidae-${{ steps.ver.outputs.name }}.apk"
+          cp android/app/build/outputs/bundle/release/app-release.aab "out/chuguidae-${{ steps.ver.outputs.name }}.aab"
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ steps.ver.outputs.name }}
+          path: out/*
+
+      - name: Releases 페이지에 첨부
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+
+  ios:
+    name: iOS (서명 없는 IPA)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx cap sync ios
+
+      - name: Xcode 빌드
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            -skipPackagePluginValidation -skipMacroValidation build | tail -40
+          test -d build/Build/Products/Release-iphoneos/App.app
+
+      - name: IPA 묶기
+        run: |
+          mkdir -p Payload out
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qr out/chuguidae-ios-unsigned.ipa Payload
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-unsigned
+          path: out/*
+
+      - name: Releases 페이지에 첨부
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*

@@ -497,14 +497,18 @@ function download(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 120000);
 }
 // 아이폰·아이패드의 홈 화면 앱은 내려받기가 잘 안 되므로 공유 창(파일에 저장, 카카오톡 등)으로 내보낸다
-async function saveOut(blob, filename) {
+async function saveOut(blob, filename) { // 안내 문구를 돌려준다
+  if (window.Native && Native.isNative) {
+    const r = await Native.saveFile(blob, filename);
+    return (r.shared ? '내보냈습니다' : '공유를 취소했습니다') + (r.savedWhere ? `. ${r.savedWhere}에도 저장되어 있습니다` : '');
+  }
   const file = new File([blob], filename, { type: blob.type });
   if (isIOS && canShareFile(file)) {
-    try { await navigator.share({ files: [file] }); return 'shared'; }
-    catch (err) { if (err.name === 'AbortError') return 'canceled'; }
+    try { await navigator.share({ files: [file] }); return SAVE_MSG.shared; }
+    catch (err) { if (err.name === 'AbortError') return SAVE_MSG.canceled; }
   }
   download(blob, filename);
-  return 'downloaded';
+  return SAVE_MSG.downloaded;
 }
 const SAVE_MSG = {
   shared: "내보냈습니다. '파일에 저장'을 골랐다면 파일 앱에 있습니다",
@@ -515,7 +519,7 @@ const SAVE_MSG = {
 $('#btn-excel').addEventListener('click', async () => {
   try {
     const { blob, filename } = await makeExcel();
-    toast(SAVE_MSG[await saveOut(blob, filename)]);
+    toast(await saveOut(blob, filename));
   } catch (err) { alert('엑셀 저장에 실패했습니다: ' + err.message); }
 });
 
@@ -523,7 +527,7 @@ $('#btn-backup').addEventListener('click', async () => {
   try {
     const data = await DB.exportBackup(state.event.id);
     const name = Excel.baseName(state.event).replace('축의금', '축의대백업') + Excel.stamp() + '.json';
-    toast(SAVE_MSG[await saveOut(new Blob([JSON.stringify(data)], { type: 'application/json' }), name)]);
+    toast(await saveOut(new Blob([JSON.stringify(data)], { type: 'application/json' }), name));
   } catch (err) { alert('백업 저장에 실패했습니다: ' + err.message); }
 });
 
@@ -552,7 +556,12 @@ $('#logs-close').addEventListener('click', () => $('#dlg-logs').close());
 const setStatus = (msg, cls) => { const el = $('#offline-status'); el.textContent = msg; el.className = 'status' + (cls ? ' ' + cls : ''); el.hidden = false; };
 const setWarn = (title, msg) => { const w = $('#env-warn'); w.innerHTML = '<b>' + esc(title) + '</b>' + esc(msg); w.hidden = false; };
 
-if (location.protocol.startsWith('http')) {
+const nativeApp = !!(window.Native && Native.isNative);
+if (nativeApp) {
+  // 설치된 앱: 서비스워커·설치 안내가 필요 없다. 버전만 표시
+  Native.getInfo().then((i) => { $('#app-version').textContent = `앱 버전 ${i.version} (${i.build})`; }).catch(() => {});
+  if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
+} else if (location.protocol.startsWith('http')) {
   const ua = navigator.userAgent;
   const standalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
   const inApp = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\//i.test(ua);

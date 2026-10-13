@@ -1,0 +1,28 @@
+{
+  "name": "chuguidae",
+  "version": "1.0.0",
+  "private": true,
+  "description": "축의대 접수 앱 - 안드로이드/iOS/웹",
+  "scripts": {
+    "build:native": "esbuild native/shim.js --bundle --format=iife --minify --target=es2019 --outfile=www/js/native.js",
+    "sync": "npm run build:native && cap sync",
+    "android": "cap open android",
+    "ios": "cap open ios",
+    "serve": "python -m http.server 8765 -d www"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.4",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/share": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "esbuild": "^0.28.2"
+  }
+}

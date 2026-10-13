@@ -1,0 +1,27 @@
+{
+  "appId": "io.github.dlwnsdyd21.chuguidae",
+  "appName": "축의대",
+  "webDir": "www",
+  "backgroundColor": "#faf6f0",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#faf6f0"
+  },
+  "ios": {
+    "backgroundColor": "#faf6f0"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#8a5a44",
+      "androidScaleType": "CENTER_CROP",
+      "splashImmersive": false,
+      "launchFadeOutDuration": 200
+    },
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover",
+      "style": "DARK"
+    }
+  }
+}
