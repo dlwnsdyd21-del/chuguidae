@@ -51,6 +51,13 @@ window.addEventListener('unhandledrejection', (e) => {
   alert('방금 동작을 처리하지 못했습니다.\n(' + msg + ')\n\n한 번 더 눌러 보시고, 계속되면 앱을 완전히 닫았다가 다시 열어 주세요.\n접수 번호가 화면에 나왔던 내용은 이미 저장되어 있습니다.');
 });
 
+// <dialog> 를 지원하지 않는 아주 오래된 브라우저(iOS 15.3 이하)에서는 안내만 한다
+function openDialog(d) {
+  if (typeof d.showModal !== 'function') { alert('이 기능은 iOS 15.4 이상에서 쓸 수 있습니다. 설정 > 일반 > 소프트웨어 업데이트를 해 주세요.'); return false; }
+  d.showModal();
+  return true;
+}
+
 function show(screen) {
   $$('.screen').forEach((s) => { s.hidden = s.id !== 'screen-' + screen; });
   window.scrollTo(0, 0);
@@ -424,7 +431,7 @@ function openEdit(id) {
   $('#ed-cancel-entry').textContent = entry.status === '취소' ? '취소 되돌리기' : '접수 취소';
   $('#ed-cancel-entry').disabled = !!state.event.closedAt;
   updateEditRead();
-  $('#dlg-edit').showModal();
+  openDialog($('#dlg-edit'));
 }
 function updateEditRead() {
   const a = Number(onlyDigits($('#ed-amount').value) || 0);
@@ -500,6 +507,7 @@ function download(blob, filename) {
 async function saveOut(blob, filename) { // 안내 문구를 돌려준다
   if (window.Native && Native.isNative) {
     const r = await Native.saveFile(blob, filename);
+    if (r.busy) return '이미 내보내는 중입니다';
     return (r.shared ? '내보냈습니다' : '공유를 취소했습니다') + (r.savedWhere ? `. ${r.savedWhere}에도 저장되어 있습니다` : '');
   }
   const file = new File([blob], filename, { type: blob.type });
@@ -548,7 +556,7 @@ $('#btn-logs').addEventListener('click', async () => {
   $('#logs-body').innerHTML = logs.length
     ? logs.map((l) => `<div><time>${dateTimeStr(l.time)}</time><b>${l.no ? l.no + '번 ' : ''}${esc(l.type)}</b><br>${esc(l.detail)}</div>`).join('')
     : '<p class="empty">기록이 없습니다.</p>';
-  $('#dlg-logs').showModal();
+  openDialog($('#dlg-logs'));
 });
 $('#logs-close').addEventListener('click', () => $('#dlg-logs').close());
 

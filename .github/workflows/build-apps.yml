@@ -92,6 +92,7 @@ jobs:
       - run: npx cap sync ios
 
       - name: Xcode 빌드
+        shell: bash
         run: |
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
