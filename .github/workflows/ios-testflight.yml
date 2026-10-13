@@ -1,0 +1,76 @@
+# iOS 앱을 서명해서 TestFlight(App Store Connect)에 올린다. Actions 탭에서 수동으로 실행한다.
+# 필요한 secret (저장소 Settings → Secrets and variables → Actions):
+#   APPLE_TEAM_ID        Apple Developer 팀 ID (10자리)
+#   ASC_KEY_ID           App Store Connect API 키 ID
+#   ASC_ISSUER_ID        App Store Connect API Issuer ID
+#   ASC_KEY_P8_BASE64    API 키 파일(AuthKey_XXXX.p8)을 base64 로 바꾼 문자열
+# 인증서는 Xcode 의 클라우드 서명을 쓰므로 따로 만들 필요가 없다. (API 키 권한: Admin)
+# 미리 App Store Connect 에서 번들 ID io.github.dlwnsdyd21.chuguidae 로 앱을 만들어 두어야 한다.
+name: iOS TestFlight 업로드 (수동)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '버전 (예: 1.0.0)'
+        default: '1.0.0'
+        required: true
+
+jobs:
+  testflight:
+    runs-on: macos-latest
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx cap sync ios
+
+      - name: secret 확인
+        run: |
+          for v in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8_BASE64; do
+            if [ -z "${!v}" ]; then echo "::error::secret $v 가 없습니다"; exit 1; fi
+          done
+          echo "$ASC_KEY_P8_BASE64" | base64 -d > "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: 아카이브 (클라우드 서명)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath build/App.xcarchive archive \
+            CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            MARKETING_VERSION="${{ github.event.inputs.version }}" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            -skipPackagePluginValidation -skipMacroValidation | tail -40
+
+      - name: App Store Connect 로 업로드
+        run: |
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath build/App.xcarchive \
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" -exportPath build/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" | tail -30
+          echo "업로드 완료. App Store Connect → TestFlight 에서 처리(수 분~수십 분)가 끝나면 테스터에게 배포할 수 있습니다."
