@@ -131,7 +131,9 @@ function composeHtml(W, H, title, sub, imgB64, isExcel, points) {
 (async () => {
   const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--lang=ko-KR', '--force-device-scale-factor=1'] });
   const OUT = 'store/screenshots';
+  const RAW = 'store/화면_원본'; // 홍보 문구 없이 화면만 있는 이미지 + 예시 엑셀 파일
   fs.rmSync(OUT, { recursive: true, force: true });
+  fs.rmSync(RAW, { recursive: true, force: true });
 
   for (const [name, s] of Object.entries(SIZES)) {
     const ctx = await browser.createBrowserContext(); // 크기마다 새 저장소
@@ -184,6 +186,9 @@ function composeHtml(W, H, title, sub, imgB64, isExcel, points) {
     // 실제 엑셀 파일을 만들어 셀 값·수식을 읽는다
     const xl = await page.evaluate(async () => {
       const { blob, filename } = await makeExcel();
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      window.__xlsxB64 = btoa(bin);
       const wb = XLSX.read(await blob.arrayBuffer(), { cellFormula: true, cellNF: true });
       const read = (ws, colsN) => {
         const ref = XLSX.utils.decode_range(ws['!ref']);
@@ -197,6 +202,7 @@ function composeHtml(W, H, title, sub, imgB64, isExcel, points) {
         return { cells, rows: ref.e.r + 1, merges: ws['!merges'] || [] };
       };
       return {
+        xlsx: window.__xlsxB64,
         filename: filename.replace(/_\d{6}\.xlsx$/, '.xlsx'),
         names: wb.SheetNames,
         s1: read(wb.Sheets[wb.SheetNames[0]], 9),
@@ -223,6 +229,12 @@ function composeHtml(W, H, title, sub, imgB64, isExcel, points) {
       await xpage.setContent(html, { waitUntil: 'load' });
       raw[id] = await (await xpage.$('#xl')).screenshot({ encoding: 'base64' });
     }
+
+    // 원본(문구 없는 화면) 저장
+    const rawDir = path.join(RAW, name);
+    fs.mkdirSync(rawDir, { recursive: true });
+    for (const shot of SHOTS) fs.writeFileSync(path.join(rawDir, shot.id + '.png'), Buffer.from(raw[shot.id], 'base64'));
+    fs.writeFileSync(path.join(RAW, xl.filename), Buffer.from(xl.xlsx, 'base64'));
 
     // 합성
     const dir = path.join(OUT, name);
