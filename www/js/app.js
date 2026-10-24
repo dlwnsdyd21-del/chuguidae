@@ -570,6 +570,7 @@ if (nativeApp) {
   Native.getInfo().then((i) => { $('#app-version').textContent = `앱 버전 ${i.version} (${i.build})`; }).catch(() => {});
   if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
 } else if (location.protocol.startsWith('http')) {
+  $('#beta-note').hidden = false; // 웹 버전에서만 테스트 안내
   const ua = navigator.userAgent;
   const standalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
   const inApp = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\//i.test(ua);

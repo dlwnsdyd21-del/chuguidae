@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>축의대 설치 안내</title>
+  <meta name="description" content="결혼식 축의대 접수 앱 '축의대' 설치·사용 안내 (테스트 버전)">
+  <meta name="theme-color" content="#8a5a44">
+  <link rel="icon" href="icons/icon-192.png">
+  <style>
+    :root { --bg: #faf6f0; --card: #fff; --ink: #2b2420; --sub: #7a6d64; --line: #e4dacf; --main: #8a5a44; --soft: #f3e9de; --warn: #fdf3dc; --warn-line: #ecd9a8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; font-size: 17px; line-height: 1.6; }
+    header { background: var(--main); color: #fffaf3; padding: calc(28px + env(safe-area-inset-top)) 16px 26px; text-align: center; }
+    header img { width: 64px; height: 64px; border-radius: 16px; }
+    header h1 { margin: 10px 0 4px; font-size: 26px; }
+    header p { margin: 0; opacity: .9; font-size: 15px; }
+    main { max-width: 640px; margin: 0 auto; padding: 18px 16px 48px; }
+    .beta { background: var(--warn); border: 1.5px solid var(--warn-line); border-radius: 14px; padding: 14px 16px; margin-bottom: 18px; font-size: 15px; }
+    .beta b { display: block; font-size: 16px; margin-bottom: 4px; }
+    .go { display: block; text-align: center; background: var(--main); color: #fff; text-decoration: none; font-weight: 700; font-size: 18px; padding: 16px; border-radius: 14px; margin: 0 0 10px; }
+    .go.ghost { background: var(--card); color: var(--main); border: 1.5px solid var(--line); }
+    .go small { display: block; font-weight: 400; font-size: 13px; opacity: .85; }
+    h2 { font-size: 20px; margin: 30px 0 10px; }
+    .tabs { display: flex; gap: 6px; background: var(--soft); padding: 4px; border-radius: 12px; margin-bottom: 12px; }
+    .tabs button { flex: 1; font: inherit; font-weight: 700; font-size: 15px; border: 0; background: none; color: var(--sub); padding: 10px 4px; border-radius: 9px; cursor: pointer; }
+    .tabs button.on { background: var(--card); color: var(--main); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+    .card { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+    .card h3 { margin: 0 0 8px; font-size: 17px; }
+    ol { margin: 0; padding-left: 22px; }
+    ol li { margin: 6px 0; }
+    .tip { color: var(--sub); font-size: 14px; margin-top: 10px; }
+    a { color: var(--main); font-weight: 700; word-break: break-all; }
+    ul.check { list-style: none; padding: 0; margin: 0; }
+    ul.check li { padding: 6px 0 6px 26px; position: relative; }
+    ul.check li::before { content: '✓'; position: absolute; left: 2px; color: var(--main); font-weight: 800; }
+    .faq dt { font-weight: 700; margin-top: 12px; }
+    .faq dd { margin: 2px 0 0; color: #4a403a; }
+    footer { text-align: center; color: var(--sub); font-size: 13px; padding: 0 16px 32px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<header>
+  <img src="icons/icon-192.png" alt="">
+  <h1>축의대</h1>
+  <p>결혼식 축의금 접수, 실수 없이 기록하고 엑셀로 정리</p>
+</header>
+
+<main>
+  <div class="beta">
+    <b>🧪 지금은 테스트 버전입니다</b>
+    모든 기능을 무료로 쓰실 수 있어요. 불편한 점이나 오류를 알려 주시면 정식 버전에 반영하겠습니다.
+    테스트 기간 중에도 입력한 기록은 내 기기에 그대로 저장됩니다.
+  </div>
+
+  <a class="go" href="./">웹으로 바로 시작하기<small>아이폰 · 안드로이드 · 태블릿 · 노트북 모두 가능</small></a>
+  <a class="go ghost" href="#android-app">안드로이드 앱으로 설치하기 (테스트 참여)</a>
+
+  <h2>① 웹으로 쓰기 (추천 · 누구나)</h2>
+  <p style="margin-top:0">설치 파일 없이 브라우저에서 바로 쓰고, <b>홈 화면에 추가</b>하면 앱처럼 아이콘으로 열립니다. 한 번 열어 두면 <b>인터넷이 없어도</b> 동작합니다.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="on" data-t="iphone">아이폰·아이패드</button>
+    <button data-t="android">안드로이드</button>
+    <button data-t="pc">노트북·PC</button>
+  </div>
+
+  <div class="card" data-p="iphone">
+    <h3>아이폰 · 아이패드</h3>
+    <ol>
+      <li><b>사파리</b>로 아래 주소를 엽니다. (크롬·네이버·카카오톡 안에서 말고 꼭 사파리)<br><a href="./">https://dlwnsdyd21-del.github.io/chuguidae/</a></li>
+      <li>화면 아래 <b>공유 버튼</b>(네모에 위쪽 화살표)을 누릅니다.</li>
+      <li><b>"홈 화면에 추가"</b> → 오른쪽 위 <b>추가</b></li>
+      <li>홈 화면에 생긴 <b>축의대 아이콘</b>으로 엽니다.</li>
+      <li>첫 화면에 <b>"✓ 인터넷 없이 사용할 준비가 되었습니다"</b>가 보이면 완료!</li>
+    </ol>
+    <p class="tip">⚠ 아이폰은 사파리 화면과 홈 화면 아이콘의 기록이 따로 저장돼요. 예식 만들기와 입력은 꼭 <b>홈 화면 아이콘</b>으로 연 화면에서 하세요.</p>
+  </div>
+
+  <div class="card" data-p="android" hidden>
+    <h3>안드로이드 (웹으로)</h3>
+    <ol>
+      <li><b>크롬</b>으로 아래 주소를 엽니다.<br><a href="./">https://dlwnsdyd21-del.github.io/chuguidae/</a></li>
+      <li>첫 화면의 <b>"이 기기에 앱으로 설치"</b> 버튼을 누릅니다.<br>(버튼이 안 보이면 크롬 오른쪽 위 <b>⋮</b> → <b>"홈 화면에 추가"</b> 또는 <b>"앱 설치"</b>)</li>
+      <li>홈 화면의 <b>축의대 아이콘</b>으로 엽니다.</li>
+      <li>첫 화면에 <b>"✓ 인터넷 없이 사용할 준비가 되었습니다"</b>가 보이면 완료!</li>
+    </ol>
+    <p class="tip">플레이스토어 앱으로 받고 싶다면 아래 <a href="#android-app">② 안드로이드 앱</a>을 보세요.</p>
+  </div>
+
+  <div class="card" data-p="pc" hidden>
+    <h3>노트북 · PC</h3>
+    <ol>
+      <li><b>크롬</b> 또는 <b>엣지</b>로 아래 주소를 엽니다.<br><a href="./">https://dlwnsdyd21-del.github.io/chuguidae/</a></li>
+      <li>첫 화면의 <b>"이 기기에 앱으로 설치"</b>를 누르면 바탕화면·시작 메뉴에 아이콘이 생깁니다. (안 눌러도 바로 사용 가능)</li>
+      <li>엑셀 파일은 <b>다운로드</b> 폴더에 저장됩니다.</li>
+    </ol>
+    <p class="tip">시크릿(InPrivate) 창에서는 기록이 남지 않으니 일반 창으로 쓰세요.</p>
+  </div>
+
+  <h2 id="android-app">② 안드로이드 앱으로 쓰기 (테스트 참여)</h2>
+  <p style="margin-top:0">구글 플레이스토어 정식 출시 전 <b>테스트 기간</b>이라, 아래 <b>두 단계</b>를 순서대로 해야 설치할 수 있어요. 기능은 웹 버전과 같습니다.</p>
+  <div class="card">
+    <ol>
+      <li><b>테스터 그룹 가입</b><br>
+        <a class="js-group" href="#">테스터 그룹</a> 을 열고 <b>"그룹 가입"</b>을 누릅니다.</li>
+      <li><b>테스트 참여 후 설치</b><br>
+        <a class="js-testing" href="#">테스트 참여 링크</a> 를 열고 <b>"테스터 되기"</b> → <b>"Google Play에서 다운로드"</b> → <b>설치</b></li>
+    </ol>
+    <p class="tip">⚠ 1·2번 모두 <b>플레이스토어에 로그인된 같은 구글 계정</b>으로 해 주세요.<br>
+    ⚠ "앱을 찾을 수 없음"이 나오면 1번(그룹 가입)을 먼저 했는지, 계정이 같은지 확인해 주세요. 가입 직후에는 반영까지 몇 분 걸릴 수 있어요.<br>
+    🙏 테스트 기간(2주) 동안 앱을 지우지 말아 주세요. 정식 출시에 큰 도움이 됩니다.</p>
+  </div>
+
+  <h2>이렇게 쓰세요</h2>
+  <div class="card">
+    <ol>
+      <li><b>"+ 새 예식 만들기"</b> → 신랑측/신부측, 이름, 날짜 입력</li>
+      <li>봉투를 받으면 <b>이름 → 금액(3만·5만·10만 버튼) → 누구 손님</b> → 저장</li>
+      <li>화면에 나온 <b>접수 번호</b>를 봉투에 적어 두면 나중에 봉투와 하나씩 맞춰 볼 수 있어요.</li>
+      <li>이름을 알아보기 어려우면 <b>"이름 확인 어려움"</b>을 체크하고 단서를 메모</li>
+      <li>끝나면 <b>더보기 → 접수 마감 → 엑셀로 저장</b> → 카카오톡 등으로 혼주님께 전달</li>
+    </ol>
+  </div>
+
+  <h2>꼭 알아 두세요</h2>
+  <div class="card">
+    <ul class="check">
+      <li>입력한 내용은 <b>내 기기에만</b> 저장되고 어디에도 전송되지 않아요. 회원가입도 없어요.</li>
+      <li>같은 폰에서 <b>웹 버전과 앱 버전은 기록이 따로</b> 저장돼요. 한 가지만 골라 쓰세요.</li>
+      <li>브라우저의 <b>"사이트 데이터 삭제"</b>를 하거나 앱을 지우면 기록도 지워져요. 중간중간 <b>더보기 → 백업 파일 저장</b>을 해 두면 안전해요.</li>
+      <li>예식 <b>전날</b> 미리 설치하고, <b>비행기 모드</b>에서 열리는지 한 번 확인해 두세요.</li>
+      <li>여러 기기로 동시에 받으면 기기마다 번호가 따로 매겨지고 엑셀도 기기별로 나와요.</li>
+    </ul>
+  </div>
+
+  <h2>자주 묻는 질문</h2>
+  <dl class="faq">
+    <dt>아이폰 앱스토어 버전은 없나요?</dt>
+    <dd>준비 중이에요. 지금은 위 ① 웹 버전을 홈 화면에 추가해서 쓰시면 앱과 똑같이 쓸 수 있어요.</dd>
+    <dt>정말 인터넷 없이 되나요?</dt>
+    <dd>네. 처음 한 번 인터넷이 될 때 열어서 "✓ 인터넷 없이 사용할 준비가 되었습니다"가 보이면, 그 뒤로는 비행기 모드에서도 열립니다.</dd>
+    <dt>엑셀 파일은 어디에 저장되나요?</dt>
+    <dd>아이폰은 공유 창이 뜨면 "파일에 저장" 또는 카카오톡을 고르세요. 안드로이드·PC는 다운로드 폴더에 저장되고, 안드로이드 앱은 공유 창으로 바로 보낼 수 있어요.</dd>
+    <dt>오류나 의견은 어디로 보내나요?</dt>
+    <dd>영상 댓글이나 <a href="mailto:brg5945@gmail.com">brg5945@gmail.com</a> 으로 알려 주세요.</dd>
+  </dl>
+</main>
+<footer>축의대 · <a href="privacy.html">개인정보처리방침</a></footer>
+
+<script>
+  // 테스트 참여 링크 (그룹 주소가 바뀌면 여기만 고친다)
+  const GROUP_URL = 'https://groups.google.com/g/chuguidae-testers';
+  const TESTING_URL = 'https://play.google.com/apps/testing/io.github.dlwnsdyd21.chuguidae';
+  document.querySelectorAll('.js-group').forEach((a) => { a.href = GROUP_URL; a.textContent = GROUP_URL; a.target = '_blank'; a.rel = 'noopener'; });
+  document.querySelectorAll('.js-testing').forEach((a) => { a.href = TESTING_URL; a.textContent = TESTING_URL; a.target = '_blank'; a.rel = 'noopener'; });
+
+  // 기기에 맞는 탭을 먼저 보여 준다
+  const show = (t) => {
+    document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.t === t));
+    document.querySelectorAll('[data-p]').forEach((p) => { p.hidden = p.dataset.p !== t; });
+  };
+  document.querySelector('.tabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) show(b.dataset.t); });
+  const ua = navigator.userAgent;
+  if (/iP(hone|ad|od)/.test(ua) || (/Mac/.test(navigator.platform) && navigator.maxTouchPoints > 1)) show('iphone');
+  else if (/Android/i.test(ua)) show('android');
+  else show('pc');
+</script>
+</body>
+</html>

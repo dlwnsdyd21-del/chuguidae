@@ -145,3 +145,7 @@ dialog h2 { margin: 0 0 14px; font-size: 19px; }
 @media (min-width: 700px) {
   .quick { grid-template-columns: repeat(8, 1fr); }
 }
+
+/* 웹 버전 첫 화면의 테스트 안내 */
+.beta-note { display: block; background: var(--card); border: 1.5px dashed var(--line); border-radius: 12px; padding: 11px 14px; margin-bottom: 14px; color: var(--sub); font-size: 14px; text-decoration: none; }
+.beta-note b { display: inline-block; background: var(--main); color: var(--main-ink); font-size: 12px; border-radius: 999px; padding: 1px 8px; margin-right: 6px; }
