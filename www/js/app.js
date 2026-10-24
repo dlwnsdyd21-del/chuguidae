@@ -564,6 +564,33 @@ $('#logs-close').addEventListener('click', () => $('#dlg-logs').close());
 const setStatus = (msg, cls) => { const el = $('#offline-status'); el.textContent = msg; el.className = 'status' + (cls ? ' ' + cls : ''); el.hidden = false; };
 const setWarn = (title, msg) => { const w = $('#env-warn'); w.innerHTML = '<b>' + esc(title) + '</b>' + esc(msg); w.hidden = false; };
 
+// 웹 버전에 처음 들어온 사람에게 설치·사용 안내를 권한다 (한 번만)
+const WELCOME_KEY = 'chuguidae.welcomeSeen';
+const welcomeSeen = () => { try { return localStorage.getItem(WELCOME_KEY) === '1'; } catch (_) { return true; } }; // 저장이 막힌 브라우저에서는 매번 뜨지 않게
+const markWelcomeSeen = () => { try { localStorage.setItem(WELCOME_KEY, '1'); } catch (_) {} };
+let welcomeCheck = null;
+async function maybeWelcome({ standalone, inApp }) {
+  if (standalone || welcomeSeen()) return; // 홈 화면 아이콘으로 연 경우는 이미 설치한 사람
+  if (/guide\.html/.test(document.referrer)) { markWelcomeSeen(); return; } // 안내를 보고 들어온 경우
+  if ($('#screen-home').hidden) return;
+  try { if ((await DB.listEvents()).length) { markWelcomeSeen(); return; } } catch (_) { return; } // 이미 쓰던 사람
+  const d = $('#dlg-welcome');
+  if (typeof d.showModal !== 'function') return;
+  const tip = $('#welcome-tip');
+  const android = /Android/i.test(navigator.userAgent);
+  tip.textContent = inApp
+    ? '지금은 카카오톡·네이버 같은 앱 안에서 열렸어요. 안내를 보고 사파리(아이폰)나 크롬(안드로이드)으로 열어 주세요.'
+    : isIOS ? '아이폰·아이패드는 사파리에서 "홈 화면에 추가"를 해야 앱처럼, 인터넷 없이 쓸 수 있어요.'
+    : android ? '홈 화면에 설치하면 앱처럼 쓸 수 있어요. 플레이스토어 앱으로 받는 방법도 안내에 있어요.'
+    : '설치 없이 바로 쓸 수 있어요. 휴대폰에서 쓰는 방법은 안내를 확인해 주세요.';
+  tip.hidden = false;
+  d.addEventListener('close', markWelcomeSeen, { once: true });
+  d.showModal();
+}
+// 안내로 넘어가기 전에 창을 닫아 둔다 (뒤로 가기로 돌아왔을 때 창이 다시 떠 있지 않게)
+$('#welcome-guide').addEventListener('click', () => { markWelcomeSeen(); $('#dlg-welcome').close(); });
+$('#welcome-start').addEventListener('click', () => $('#dlg-welcome').close());
+
 const nativeApp = !!(window.Native && Native.isNative);
 if (nativeApp) {
   // 설치된 앱: 서비스워커·설치 안내가 필요 없다. 버전만 표시
@@ -574,6 +601,8 @@ if (nativeApp) {
   const ua = navigator.userAgent;
   const standalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
   const inApp = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\//i.test(ua);
+
+  welcomeCheck = () => maybeWelcome({ standalone, inApp });
 
   if (!('serviceWorker' in navigator) || inApp) {
     setWarn('다른 앱 안에서 열렸습니다', '카카오톡·네이버 같은 앱 안의 화면에서는 설치가 되지 않습니다. 메뉴에서 "다른 브라우저로 열기"를 눌러 사파리(아이폰)나 크롬(안드로이드)에서 열어 주세요.');
@@ -622,6 +651,7 @@ if (nativeApp) {
     }
     if (st) replaceNav(null);
     await renderHome();
+    if (welcomeCheck) welcomeCheck();
   } catch (err) {
     show('home');
     $('#event-list').innerHTML = '<p class="empty">이 브라우저에서 기기 저장소를 열 수 없습니다.<br>앱을 완전히 닫았다가 다시 열어 주세요.<br><small>' + esc((err && err.message) || err) + '</small></p>';
